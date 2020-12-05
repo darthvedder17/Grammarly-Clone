@@ -73,12 +73,13 @@ console.log(inputBox);
   
     reader.onload = (e) => { 
         var file = e.target.result; 
-  
         // This is a regular expression to identify carriage  
         // Returns and line breaks 
         const lines = file.split(/\r\n|\n/); 
-        textArea.value = lines.join('\n'); 
-        spellCheck()
+        textArea.innerHTML+=file; 
+        let prom = spellCheck(file)
+        // console.log(prom["response"]);
+        // console.log(prom.json());
 
     }; 
   
@@ -88,15 +89,25 @@ console.log(inputBox);
 
 }); 
 
-async function spellCheck() {	
-    var text = textArea.value;
+async function spellCheck(file) {	
+    var text = file;
     let url = "https://api.textgears.com/spelling?key=1gVny1rfj02gy7kY&text=" + text + "!&language=en-GB";	
-    let response = await fetch(url);	
-    if (response.ok) {	
-        console.log(response.json());
-        // console.log(JSON.parse())
+    let responseObj = await fetch(url);	
+    if (responseObj.ok) {	
+        let obj = responseObj.json()
+        
+        console.log(obj)
+        console.log(obj["PromiseResult"]);
+        return responseObj;
     }	
 } 
+
+
+
+
+
+
+
 
 // u3esRGivME8L0kfg
 

@@ -10,17 +10,99 @@
     <div class="container">
         <form class="form-group" >
             <input id="files" name="file" type="file" class="input-group mb-3" />
-            <input type="text" id="inputBox"  />
+                <input type="text" id="inputBox"  />
         </form>
 
         <!-- <button onclick="displayContent()" class = "btn btn-primary" type="button">Check!</button> -->
         <div class="displayContainer">
-            <input id ="displayField" type="text"; style="width: 800px;height: 300px;">
+            <div id ="displayField" ; style="width: 800px;height: 300px;"></div>
         </div>
+        <div id="Menu" class="spell-menu" style="display:none"></div>                 
+
     </div>
 </body>
 
-<script src="app.js"></script>
+<script src="app.js">
+
+ // Check if file is of the txt format or not
+ 
+ var key = "1gVny1rfj02gy7kY";
+ let bad = [];
+
+
+
+ $(document).ready(function(){
+
+$('input[type="file"]').change(function(e){
+
+    var fileName = e.target.files[0].name;
+    if (fileName.split(".")[1]!='txt'){
+        alert('Hey Man! Only text files allowed!');
+        $('#files').val('');
+    }
+
+    else{
+        var insideText = $('#inputBox').val(fileName);
+    }
+
+
+})
+
+
+})
+//  Taking input to display on the textArea
+
+
+// NOTE : Error catching for text displayed on uploading different file formats.
+
+let input = document.getElementById("files");
+let textArea = document.getElementById("displayField")
+let inputBox = $('#inputBox').val();
+console.log(inputBox);
+
+input.addEventListener('change', () => { 
+let files = input.files; 
+
+if (files.length == 0) return; 
+
+
+var file = files[0]; 
+
+let reader = new FileReader(); 
+
+reader.onload = (e) => { 
+    var file = e.target.result; 
+    const lines = file.split(/\r\n|\n/); 
+    textArea.innerHTML+=file; 
+    let prom = spellCheck(file)
+
+}; 
+
+reader.onerror = (e) => alert(e.target.error.name); 
+
+reader.readAsText(file);
+
+}); 
+
+async function spellCheck(file) {	
+var text = file;
+let url = "https://api.textgears.com/spelling?key=1gVny1rfj02gy7kY&text=" + text + "!&language=en-GB";	
+let responseObj = await fetch(url);	
+if (responseObj.ok) {	
+    let obj = responseObj.json()
+    
+    console.log(obj)
+    console.log(obj["PromiseResult"]);
+    return responseObj;
+}	
+} 
+
+
+
+
+
+
+</script>
 
 
 
