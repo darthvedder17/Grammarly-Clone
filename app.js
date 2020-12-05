@@ -1,4 +1,6 @@
  // Check if file is of the txt format or not
+ 
+ 
  $(document).ready(function(){
 
     $('input[type="file"]').change(function(e){
@@ -15,6 +17,36 @@
 
 
     })
+
+    // $.ajax({
+
+    //     url : "https://api.textgears.com/spelling",
+    //     crossDomain : true,
+    //     dataType: "jsonp",
+    //     headers: {
+    //         "text" : "braeth",
+    //         "Content-Type":"application/json",
+    //         "key":"u3esRGivME8L0kfg",
+
+
+
+    //     },
+    //     type:"GET",
+    //     success : function(result){
+
+    //         console.log(result);
+
+    //     },
+    //     error : function(error){
+
+
+    //     console.log(error);            
+
+    //     }
+
+
+
+    // })
 
 
 
@@ -46,13 +78,27 @@ console.log(inputBox);
         // Returns and line breaks 
         const lines = file.split(/\r\n|\n/); 
         textArea.value = lines.join('\n'); 
-  
+        spellCheck()
+
     }; 
   
     reader.onerror = (e) => alert(e.target.error.name); 
-  
-    reader.readAsText(file); 
+    
+    reader.readAsText(file);
+
 }); 
+
+async function spellCheck() {	
+    var text = textArea.value;
+    let url = "https://api.textgears.com/spelling?key=1gVny1rfj02gy7kY&text=" + text + "!&language=en-GB";	
+    let response = await fetch(url);	
+    if (response.ok) {	
+        console.log(response.json());
+        // console.log(JSON.parse())
+    }	
+} 
+
+// u3esRGivME8L0kfg
 
 
 
