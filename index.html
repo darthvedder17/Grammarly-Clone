@@ -6,23 +6,33 @@
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
     </head>
-<body>
-    <div class="container">
-        <form class="form-group" >
-            <input id="files" name="file" type="file" class="input-group mb-3" />
-                <input type="text" id="inputBox"  />
-        </form>
-
+<body style="background-image: url('https://i.redd.it/4enoq4ixmey41.jpg');">
+    <div class="container-fluid">
+        <!-- <form class="form-group" >
+            <input id="file-input" name="file" type="file" class="input-group mb-3" style="padding-top:20px;padding-left:20px ;" />
+                <input type="text" id="inputBox" style=""  />
+        </form> -->
+        <form class="md-form">
+            <div style="margin-top: 30px; class="file-field">
+              <div class="btn  btn-mb float-left">
+                <!-- <span>Choose file</span> -->
+                <input id="file-input" type="file">
+              </div>
+              <div class="file-path-wrapper">
+                <input style="margin-top: 6px; id="inputBox" class="file-path validate" type="text" placeholder="Upload your file">
+              </div>
+            </div>
+          </form>
         <!-- <button onclick="displayContent()" class = "btn btn-primary" type="button">Check!</button> -->
-        <div class="displayContainer">
-            <div id ="displayField" ; style="width: 800px;height: 300px;"></div>
+        <div class="font-weight-bold display-4">
+            <div id ="file-content" ; style="width: 800px;height: 300px;"></div>
         </div>
         <div id="Menu" class="spell-menu" style="display:none"></div>                 
 
     </div>
 </body>
 
-<script src="app.js">
+<script >
 
  // Check if file is of the txt format or not
  
@@ -48,6 +58,104 @@ $('input[type="file"]').change(function(e){
 
 })
 
+let badWords=[];
+    let betterWords=new Map();
+
+    function readSingleFile(e) {
+        let file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            let contents = e.target.result;
+
+            new Promise(
+                (myResolve)=> {
+                    spellCheckAPI(contents, myResolve);
+                }
+            ).then(
+                (value)=> {
+                    console.log(value.response.errors);
+
+                    let errArr = value.response.errors;
+                    for(const item of errArr){
+                        badWords.push(item.bad);
+                        betterWords.set(item.bad, item.better);
+                        console.log(item.bad+" -> "+typeof(item.bad));
+                    }
+
+                    document.getElementById('file-content').innerHTML = redContent(contents, badWords);
+
+                    let allSpans = document.querySelectorAll("span");
+                    allSpans.forEach(span => {
+                        span.addEventListener("mouseover", (e)=> {
+                            //alert(e.target.textContent);
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                            console.log(typeof(e.target.textContent));
+
+                            let arr=betterWords.get(e.target.textContent.trim());
+
+                            var str = '<ul>';
+
+                            arr.forEach(it => {
+                                str += '<li>'+ it +'</li>';
+                            });
+
+                            str += '</ul>';
+
+                            $(e.target).append(str);
+
+                            console.log(arr);
+                            //e.target.innerHTML="Done";
+                        });
+
+                        span.addEventListener("mouseout", (e)=>{
+                            //alert(e.target.firstChild.textContent);    
+                            e.target.innerHTML=e.target.firstChild.textContent;
+
+                        });
+
+                    });
+                }
+            );
+        };
+
+        reader.readAsText(file);
+    }
+
+    async function spellCheckAPI(contents, myResolve) {	
+        //let endpoint = 'https://api.textgears.com/spelling';
+        //let apiKey = '1gVny1rfj02gy7kY';
+        let url = "https://api.textgears.com/spelling?key=1gVny1rfj02gy7kY&text=" + contents + "!&language=en-GB";	
+        let response = await fetch(url);	
+        if(response.ok){
+            myResolve(response.json());
+        }
+    }
+    
+    function redContent(content, keywords){
+        let temp = content;
+      
+        keywords.forEach(keyword => {
+          temp = temp.replace(new RegExp(keyword, 'ig'), wrapKeywordWithHTML(keyword));
+        });
+      
+        return temp;
+    }
+      
+    function wrapKeywordWithHTML(keyword){
+        return ` <span class="badge badge-danger" style="font-weight: bold;">  ${keyword}  </span> `;
+    }
+    
+    document.getElementById('file-input')
+        .addEventListener('change', readSingleFile, false);
+
+
+
+
+
 
 })
 //  Taking input to display on the textArea
@@ -55,47 +163,6 @@ $('input[type="file"]').change(function(e){
 
 // NOTE : Error catching for text displayed on uploading different file formats.
 
-let input = document.getElementById("files");
-let textArea = document.getElementById("displayField")
-let inputBox = $('#inputBox').val();
-console.log(inputBox);
-
-input.addEventListener('change', () => { 
-let files = input.files; 
-
-if (files.length == 0) return; 
-
-
-var file = files[0]; 
-
-let reader = new FileReader(); 
-
-reader.onload = (e) => { 
-    var file = e.target.result; 
-    const lines = file.split(/\r\n|\n/); 
-    textArea.innerHTML+=file; 
-    let prom = spellCheck(file)
-
-}; 
-
-reader.onerror = (e) => alert(e.target.error.name); 
-
-reader.readAsText(file);
-
-}); 
-
-async function spellCheck(file) {	
-var text = file;
-let url = "https://api.textgears.com/spelling?key=1gVny1rfj02gy7kY&text=" + text + "!&language=en-GB";	
-let responseObj = await fetch(url);	
-if (responseObj.ok) {	
-    let obj = responseObj.json()
-    
-    console.log(obj)
-    console.log(obj["PromiseResult"]);
-    return responseObj;
-}	
-} 
 
 
 
